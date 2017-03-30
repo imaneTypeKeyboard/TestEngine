@@ -1,11 +1,11 @@
 
 #ifndef _LOG_H
 #define _LOG_H
-#include "Defines.h"
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #  define ATTR_PRINTF(F, V) __attribute__ ((format (printf, F, V)))
 
@@ -117,12 +117,12 @@ class Log
 //        void outDebugInLine( const char * str, ... )            ATTR_PRINTF(2, 3);
 //        void outErrorDb( const char * str, ... )                ATTR_PRINTF(2, 3);
         void outChar( const char * str, ... )                   ATTR_PRINTF(2, 3);
-//        void outCommand( uint32 account, const char * str, ...) ATTR_PRINTF(3, 4);
+//        void outCommand( uint32_t account, const char * str, ...) ATTR_PRINTF(3, 4);
 //        void outRemote( const char * str, ... )                 ATTR_PRINTF(2, 3);
         void outChat( const char * str, ... )                   ATTR_PRINTF(2, 3);
 //        void outArena( const char * str, ... )                  ATTR_PRINTF(2, 3);
 //        void outSQLDriver( const char* str, ... )               ATTR_PRINTF(2, 3);
-//        void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
+//        void outCharDump( const char * str, uint32_t account_id, uint32_t guid, const char * name );
 
 //        void outDollar( const char* str, ... )               ATTR_PRINTF(2, 3);
 		void outGmSystem(const char * strlv, const char * str, ...);
@@ -138,7 +138,7 @@ class Log
 
         void SetDBLogLevel(char * Level);
 //        void SetSQLDriverQueryLogging(bool newStatus) { m_sqlDriverQueryLogging = newStatus; }
-        void SetRealmID(uint32 id) { realm = id; }
+//        void SetRealmID(uint32_t id) { realm = id; }
 
         bool IsOutDebug() const { return m_logLevel > 2 || (m_logFileLevel > 2 && logfile); }
 //        bool IsOutCharDump() const { return m_charLog_Dump; }
@@ -150,7 +150,7 @@ class Log
 //        bool GetSQLDriverQueryLogging() const { return m_sqlDriverQueryLogging; }
     private:
         FILE* openLogFile(char const* configFileName, char const* configTimeStampFlag, char const* mode);
-        FILE* openGmlogPerAccount(uint32 account);
+        FILE* openGmlogPerAccount(uint32_t account);
 
 //        FILE* raLogfile;
         FILE* logfile;
@@ -173,7 +173,7 @@ class Log
 
 //        bool m_enableLogDBLater;
         bool m_enableLogDB;
-        uint32 realm;
+//        uint32_t realm;
 
         // log coloring
         bool m_colored;
@@ -185,9 +185,9 @@ class Log
 
         // log levels:
         // 0 minimum/string, 1 basic/error, 2 detail, 3 full/debug
-        uint8 m_dbLogLevel;
-        uint8 m_logLevel;
-        uint8 m_logFileLevel;
+        uint8_t m_dbLogLevel;
+        uint8_t m_logLevel;
+        uint8_t m_logFileLevel;
         bool m_dbChar;
 //        bool m_dbRA;
         bool m_dbGM;
@@ -226,8 +226,11 @@ class Log
 #define IME_SQLDRIVER(fmt, ...)		sLog->outBasic("%u,0,NORMAL,%s:%d:%s,desc="fmt, LOGL_BASIC, FILENAME, __LINE__, __FUNCTION__,  ##__VA_ARGS__)
 #define IME_SQLERROR(fmt, ...)		sLog->outError("%u,0,ERROR,%s:%d:%s,desc="fmt, LOGL_NORMAL, FILENAME, __LINE__, __FUNCTION__,  ##__VA_ARGS__)
 
-#define IME_SYSTEM_ERROR(cmd, fmt, ...)		IME_ERROR(fmt, ##__VA_ARGS__)
+#define IME_SYSTEM_ERROR(fmt, ...)		IME_ERROR(fmt, ##__VA_ARGS__)
 #define IME_SYSTEM_LOG(cmd, fmt, ...)		IME_LOG(fmt, ##__VA_ARGS__)	
+
+#define IME_SIMPLE_LOG(fmt, ...)		sLog->outBasic(fmt, ##__VA_ARGS__)
+#define IME_SIMPLE_ERROR(fmt, ...)		sLog->outError(fmt, ##__VA_ARGS__)
 
 #define IME_CHAT_LOG(fmt, ...)		sLog->outBasic("%u,0,CHAT,%s:%d:%s,desc="fmt, LOGL_NORMAL, FILENAME, __LINE__, __FUNCTION__,  ##__VA_ARGS__)
 

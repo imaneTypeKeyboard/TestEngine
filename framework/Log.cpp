@@ -76,7 +76,7 @@ Log * Log::Instance()
 }
 void Log::SetLogLevel(char *Level)
 {
-    int32 NewLevel =atoi((char*)Level);
+    int NewLevel =atoi((char*)Level);
     if ( NewLevel <0 )
         NewLevel = 0;
     m_logLevel = NewLevel;
@@ -86,7 +86,7 @@ void Log::SetLogLevel(char *Level)
 
 void Log::SetLogFileLevel(char *Level)
 {
-    int32 NewLevel =atoi((char*)Level);
+    int NewLevel =atoi((char*)Level);
     if ( NewLevel <0 )
         NewLevel = 0;
     m_logFileLevel = NewLevel;
@@ -96,7 +96,7 @@ void Log::SetLogFileLevel(char *Level)
 
 void Log::SetDBLogLevel(char *Level)
 {
-    int32 NewLevel = atoi((char*)Level);
+    int NewLevel = atoi((char*)Level);
     if ( NewLevel < 0 )
         NewLevel = 0;
     m_dbLogLevel = NewLevel;
@@ -120,7 +120,7 @@ void Log::Initialize()
     m_dbChat = false;//sConfig->GetBoolDefault("LogDB.Chat", false);
 
     /// Realm must be 0 by default
-    SetRealmID(0);
+//    SetRealmID(0);
 
     /// Common log files data
     m_logsDir = "log";//sConfig->GetStringDefault("LogsDir", "");
@@ -220,7 +220,7 @@ FILE* Log::openLogFile(char const* configFileName, char const* configTimeStampFl
     return fopen((m_logsDir+logfn).c_str(), mode);
 }
 
-FILE* Log::openGmlogPerAccount(uint32 account)
+FILE* Log::openGmlogPerAccount(uint account)
 {
     if(m_gmlog_filename_format.empty())
         return NULL;
@@ -255,7 +255,7 @@ void Log::InitColors(const std::string& str)
 
     std::istringstream ss(str);
 
-    for (uint8 i = 0; i < LogLevels; ++i)
+    for (uint8_t i = 0; i < LogLevels; ++i)
     {
         ss >> color[i];
 
@@ -266,7 +266,7 @@ void Log::InitColors(const std::string& str)
             return;
     }
 
-    for (uint8 i = 0; i < LogLevels; ++i)
+    for (uint8_t i = 0; i < LogLevels; ++i)
         m_colors[i] = ColorTypes(color[i]);
 
     m_colored = true;
@@ -323,7 +323,7 @@ void Log::SetColor(bool stdout_stream, ColorTypes color)
         BG_MAGENTA,  BG_CYAN, BG_WHITE
     };
 
-    static uint8 UnixColorFG[Colors] =
+    static uint8_t UnixColorFG[Colors] =
     {
         FG_BLACK,                                           // BLACK
         FG_RED,                                             // RED
@@ -560,7 +560,7 @@ void Log::outGmSystem(const char * strlv, const char * str, ...)
         va_end(ap2);
     }
 
-	uint32 account = 0;
+	uint account = 0;
     if (m_gmlog_per_account)
     {
         if (FILE* per_file = openGmlogPerAccount (account))
@@ -956,7 +956,7 @@ void Log::outDebug(DebugLogFilters f, const char * str, ...)
 //}
 
 /*
-void Log::outCommand(uint32 account, const char * str, ...)
+void Log::outCommand(uint account, const char * str, ...)
 {
     if (!str)
         return;
@@ -1068,7 +1068,7 @@ void Log::outChar(const char * str, ...)
     }
 }
 
-//void Log::outCharDump(const char * str, uint32 account_id, uint32 guid, const char * name)
+//void Log::outCharDump(const char * str, uint account_id, uint guid, const char * name)
 //{
 //    FILE *file = NULL;
 //    if (m_charLog_Dump_Separate)
