@@ -57,5 +57,5 @@ void TELL_CHILD(pid_t pid);
 void WAIT_CHILD();
 
 std::string Uint32ToString(uint32_t dwNum);
-std::string Uint64ToString(uint32_t dwNum);
+std::string Uint64ToString(uint64_t dwNum);
 #endif

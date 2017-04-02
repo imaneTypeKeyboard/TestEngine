@@ -49,7 +49,6 @@ int ClientNetwork::Connect(const char *host, const char *serv, int timeout)
 {
 	int n;
 	struct addrinfo	hints, *res, *ressave;
-	char buf[1024];
 
 	// get ip and port from host and serv
 	bzero(&hints, sizeof(struct addrinfo));
@@ -66,8 +65,7 @@ int ClientNetwork::Connect(const char *host, const char *serv, int timeout)
 	fd_ = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (fd_ < 0)
 	{
-		strerror_r(errno, buf, 1024);
-		IME_ERROR("socket create fail for %s:%s %s", host, serv, buf);
+		IME_ERROR("socket create fail for %s:%s %s", host, serv, strerror(errno));
 		return -1;
 	}
 
@@ -85,8 +83,7 @@ int ClientNetwork::Connect(const char *host, const char *serv, int timeout)
 		if (errno != EINPROGRESS)
 		{
 			close(fd_);
-			strerror_r(errno, buf, 1024);
-			IME_ERROR("connect fail for %s:%s %s", host, serv, buf);
+			IME_ERROR("connect fail for %s:%s %s", host, serv, strerror(errno));
 			return(-1);
 		}
 	}
@@ -100,11 +97,11 @@ int ClientNetwork::Connect(const char *host, const char *serv, int timeout)
 	n = select(fd_+1, &rset, &wset, NULL, timeout ? &tval : NULL);
 	if ( n <= 0) {
 		close(fd_);		/* timeout */
-		if (n < 0)
-			strerror_r(errno, buf, 1024);
-		else
-			sprintf(buf, "timeout %d", timeout);
-		IME_ERROR("connect fail timeout or fail %s:%s %s", host, serv, buf);
+		if (n == 0)
+		{
+			errno = ETIMEDOUT;
+		}
+		IME_ERROR("connect fail timeout or fail %s:%s %s", host, serv, strerror(errno));
 		return(-1);
 	}
 
@@ -121,21 +118,19 @@ int ClientNetwork::Connect(const char *host, const char *serv, int timeout)
 
 	if (error) {
 		close(fd_);		/* just in case */
-		strerror_r(error, buf, 1024);
-		IME_ERROR("connect fail for %s:%s reason %s", host, serv, buf);
+		IME_ERROR("connect fail for %s:%s reason %s", host, serv, strerror(errno));
 		return -1;
 	}
 
 	freeaddrinfo(ressave);
 
-	return(fd_);
+	return 0;
 }
 
 int ClientNetwork::SendSync(const char *pbuffer, int len)
 {
 	int n;
 	int already = 0;
-	char buf[1024];
 	if (len < 0)
 	{
 		IME_ERROR("len is unvalid %d", len);
@@ -146,17 +141,16 @@ int ClientNetwork::SendSync(const char *pbuffer, int len)
 		n = send(fd_, pbuffer + already, len - already, 0);
 		if (-1 == n)
 		{
-			if (EAGAIN == n)
+			if (EAGAIN == errno)
 			{
 				usleep(500);
 				continue;
 			}
-			else if (EINTR == n)
+			else if (EINTR == errno)
 			{
 				continue;
 			}
-			strerror_r(errno, buf, 1024);
-			IME_ERROR("send fail reason %s", buf);
+			IME_ERROR("send fail reason %s", strerror(errno));
 			return -1;
 		}
 		already += n;
@@ -168,7 +162,6 @@ int ClientNetwork::RecvSync(char *pBuffer, int len)
 {
 	int n;
 	int already = 0;
-	char buf[1024];
 	if (len < 0)
 	{
 		IME_ERROR("len is unvalid %d", len);
@@ -181,19 +174,19 @@ int ClientNetwork::RecvSync(char *pBuffer, int len)
 		n = recv(fd_, pBuffer + already, len - already, 0);	
 		if (-1 == n)
 		{
-			if (EAGAIN == n)
+			if (EAGAIN == errno)
 			{
 				usleep(500);
 				continue;
 			}
-			else if (EINTR == n)
+			else if (EINTR == errno)
 			{
 				continue;
 			}
-			strerror_r(errno, buf, 1024);
-			IME_ERROR("send fail reason %s", buf);
+			IME_ERROR("send fail reason %s errno %u", strerror(errno), errno);
 			return -1;
 		}
+		already += n;
 	}
 	return 0;
 }
@@ -227,4 +220,14 @@ int ClientNetwork::Run()
 		}
 	}
 	return 0;
+}
+
+int ClientNetwork::GetRecvBufferLen()
+{
+	return input_buffer_->GetSize();
+}
+
+int ClientNetwork::GetRecvBuffer(char *pbuffer, int len)
+{
+	return input_buffer_->BufferRead(pbuffer, len);
 }

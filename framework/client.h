@@ -47,7 +47,8 @@ class ClientNetwork
 
 		int Send(const char *pbuffer, int len);
 		int Run();
-
+		int GetRecvBufferLen();
+		int GetRecvBuffer(char *pbuffer, int len);
 
 	protected:
 		/* ====================  METHODS       ======================================= */
