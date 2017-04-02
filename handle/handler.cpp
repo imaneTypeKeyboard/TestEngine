@@ -35,5 +35,6 @@ bool HandlerFinally(uint8_t process)
 void HandlerWork()
 {
 	//to do implementation
-	IME_LOG("handler work");
+	//IME_LOG("handler work");
 }
+
