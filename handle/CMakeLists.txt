@@ -27,4 +27,3 @@ LINK_DIRECTORIES(
 )
 add_executable(TestEngine ${gameserver_stat_srcs})
 target_link_libraries(TestEngine rt)
-target_link_libraries(TestEngine protobuf)

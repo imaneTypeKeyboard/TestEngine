@@ -43,9 +43,7 @@ bool HandlerFinally(uint8_t process);
 /* 
  * ===  FUNCTION  ======================================================================
  *  Name:  HandlerWork
- *  Description:  world process(logical process) funciton. Notice every timer is 
- *  independent. For example now time is 0. When time arrives 3, this function will be 
- *  called twice(1s and 3s). But para is 1 or 3.
+ *  Description:  world process(logical process) funciton. 
  * =====================================================================================
  */
 void HandlerWork();
