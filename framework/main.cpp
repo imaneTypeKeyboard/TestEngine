@@ -268,8 +268,23 @@ int main(int argc, char * argv[])
 			now = GetMSTime();
 			interval = now - pre;
 			if (interval < conf.rate)
-				usleep(conf.rate - interval);
+			{
+				usleep((conf.rate - interval) * 1000);
+				pre += conf.rate;
+			}
+			else
+			{
+				pre = now;
+			}
+			//IME_SIMPLE_LOG("pre %ld now %ld interval %ld rate %d", pre, now, interval, conf.rate);
+			if (i % 100 == 0)
+			{
+				IME_SIMPLE_LOG("launch %d process", i);
+			}
 		}
+
+		if (g_stopEvent)
+			break;
     }
 
     daemon_set_title("%s-MAIN", g_prog_name.c_str());
@@ -283,6 +298,21 @@ int main(int argc, char * argv[])
 			TELL_CHILD(it->first);
 		}
 	}
+
+    while (!g_stopEvent && childs.size() != 0) {
+        int status;
+        pid_t p; 
+        p = waitpid(-1, &status, 0);
+        if(-1 == p)
+            continue;
+        childs.erase(p);
+    }
+
+	std::map<pid_t, int>::iterator it;                    
+	for (it = childs.begin(); it != childs.end(); ++it) {
+		kill((*it).first, SIGTERM);
+	}
+
     /*
      * exit
      */

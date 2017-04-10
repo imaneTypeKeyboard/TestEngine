@@ -88,7 +88,7 @@ Sigfunc *SignalInner(int signo, Sigfunc *func)
 	act.sa_handler = func;
 	sigemptyset(&act.sa_mask);
 	act.sa_flags = 0;
-	if (signo == SIGALRM) {
+	if (signo == SIGALRM || signo == SIGTERM) {
 #ifdef	SA_INTERRUPT
 		act.sa_flags |= SA_INTERRUPT;	/* SunOS 4.x */
 #endif
@@ -107,7 +107,7 @@ Sigfunc *Signal(int signo, Sigfunc *func)	/* for our signal() function */
 {
 	Sigfunc	*sigfunc;
 
-	if ( (sigfunc = signal(signo, func)) == SIG_ERR)
+	if ( (sigfunc = SignalInner(signo, func)) == SIG_ERR)
 	{
 		IME_ERROR("signal error");
 		exit(1);
